@@ -35,7 +35,7 @@ class PetFactory(DjangoModelFactory):
     class Meta(object):
         model = Pet
 
-    name = Faker('first_name')
+    name = fuzzy.FuzzyText('')
     gender = fuzzy.FuzzyChoice(['male', 'female'])
     breed = Iterator(Breed.objects.all())
     owner = SubFactory(UserFactory)
@@ -54,16 +54,19 @@ class BirthFactory(DjangoModelFactory):
 
 class PetTest(APITestCase):
 
-    url = '/api/v1/pet/'
+    url = 'https://testserver/api/v1/pet/'
 
     client_class = RequestsClient
 
     def setUp(self):
-        BreedFactory(name='dog')
         self.pets = PetFactory.create_batch(10)
         password = 'password'
         user = UserFactory(password=password)
         self.client.auth = HTTPBasicAuth(user.username, password)
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.breed = BreedFactory(name='dog')
 
     def test_list(self):
         response = self.client.get('https://testserver/api/v1/pet/')
@@ -78,6 +81,29 @@ class PetTest(APITestCase):
             'father_id': None,
             'mother_id': None,
             'name': pet.name,
+            'gender': pet.gender,
+            'created_at': pet.created_at.replace(tzinfo=None).isoformat() + 'Z',
+            'updated_at': pet.updated_at.replace(tzinfo=None).isoformat() + 'Z',
+        })
+
+    def test_create_with_parent(self):
+        new_pet = {
+            'name': 'excavata',
+            'breed_id': self.breed.pk,
+            'gender': 'male'
+        }
+        response = self.client.post(self.url, json=new_pet)
+        self.assertEqual(response.status_code, 201)
+        pet_json = response.json()
+        pet = Pet.objects.get(pk=pet_json['id'])
+        self.assertEqual(pet_json, {
+            'id': pet.id,
+            'breed_id': pet.breed.pk,
+            'name': pet.name,
+            'father_id': None,
+            'mother_id': None,
+            'name': pet.name,
+            'gender': pet.gender,
             'created_at': pet.created_at.replace(tzinfo=None).isoformat() + 'Z',
             'updated_at': pet.updated_at.replace(tzinfo=None).isoformat() + 'Z',
         })

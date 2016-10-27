@@ -37,5 +37,5 @@ class Pet(Namable, EditTimeTrackable):
 
 class Birth(EditTimeTrackable):
     child = models.OneToOneField(Pet)
-    father = models.ForeignKey(Pet, related_name='father_of')
-    mother = models.ForeignKey(Pet, related_name='mother_of')
+    father = models.ForeignKey(Pet, related_name='father_of', null=True)
+    mother = models.ForeignKey(Pet, related_name='mother_of', null=True)
