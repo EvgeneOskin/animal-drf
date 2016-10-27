@@ -44,7 +44,7 @@ class BreedSerializer(serializers.ModelSerializer):
 
     class Meta(object):
         model = Breed
-        exclude = []
+        fields = ['name']
 
 
 class BirthSerializer(serializers.ModelSerializer):
