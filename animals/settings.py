@@ -22,9 +22,8 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'allauth',
     'allauth.account',
+    'allauth.socialaccount',
     'rest_framework',
-    'rest_auth',
-    'rest_auth.registration',
     'django_extensions',
     'pet',
 ]
@@ -71,6 +70,11 @@ DATABASES = {
     }
 }
 
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -114,3 +118,5 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
 }
+
+SITE_ID = 1
