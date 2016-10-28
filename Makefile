@@ -5,7 +5,7 @@ lint:
 	flake8
 
 test:
-	pytest
+	./manage.py test
 
 localserver:
 	docker-compose build
